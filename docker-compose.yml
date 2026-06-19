@@ -1,0 +1,26 @@
+services:
+  backend:
+    build: ./backend
+    ports:
+      - "8000:8000"
+    environment:
+      # Allow the frontend origin through CORS.
+      - FRONTEND_ORIGIN=http://localhost:5173
+    volumes:
+      # Persist the SQLite database across container restarts.
+      - backend-data:/app
+    restart: unless-stopped
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "5173:5173"
+    environment:
+      # Inside Docker the backend is reachable at http://backend:8000.
+      - VITE_API_URL=http://localhost:8000
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+volumes:
+  backend-data:
